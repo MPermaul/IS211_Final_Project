@@ -15,7 +15,7 @@ import os
 app = Flask(__name__)
 
 # appliction config section
-app.config['DEBUG'] = False
+app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flask_book.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -34,6 +34,7 @@ login_manager.login_message_category = 'info'
 # glboal book variable initialzed as None
 book = None
 
+# classes used by Flask Application
 class User(db.Model, UserMixin):
     """A class object representing a user table in a database."""
     id = db.Column(db.Integer, primary_key=True)
@@ -54,32 +55,13 @@ class Book(db.Model):
 
 
 class Book_Api():
-    """A class object representing a book using data from a search"""
+    """A class object representing a book using data from a search."""
 
     def __init__ (self, title, authors, pages, rating):
         self.title = title
         self.authors = authors
         self.pages = pages
         self.rating = rating
-
-
-class RegistrationForm(FlaskForm):
-    """A class object representing a registration form."""
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Username Entered Already in Use!')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('Email Entered Alread in Use!')
 
 
 class LoginForm(FlaskForm):
@@ -102,18 +84,13 @@ class AddForm(FlaskForm):
 
     submit = SubmitField('Add Book')
 
-    def validate_book(self, title):
-        valid_book = Book.query.filter_by(title=title.data).first()
-        if valid_book:
-            raise ValidationError('Book Already Exists!')
-
 # book example for home page
 books = [
     {
         'title': 'Flask Web Development',
         'author': 'Miguel Grinberg',
         'pages': 237,
-        'rating': 'No Rating'
+        'rating': 'No Rating Available'
     }
 ]
 
@@ -192,25 +169,6 @@ def home():
     return render_template('home.html', books=books)
 
 
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    
-    form = RegistrationForm()
-    
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Account has been created!', 'success')
-        return redirect(url_for('login'))
-    
-    return render_template('register.html', title='Register', form=form)
-
-
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     
@@ -242,7 +200,10 @@ def login():
 @app.route("/logout")
 def logout():
 
+    # call logout user function from Flask
     logout_user()
+    
+    # flash message and redirect to home page
     flash('Logout Successful', 'success')
     return redirect(url_for('home'))
 
@@ -251,6 +212,7 @@ def logout():
 @login_required
 def account():
 
+    # query database to get all books
     catalogue = Book.query.all()
 
     return render_template('account.html', catalogue=catalogue)
@@ -267,19 +229,16 @@ def search():
 
     # check if search button is pressed
     if form.validate_on_submit():
-
         # call search function and pass in isbn number
         json_response = Google_Search(form.isbn.data)
-
+        
         # if json respons has 0 total items
         if json_response["totalItems"] == 0:
             flash('No Book Found!', 'danger')
             return redirect(url_for('search'))
-
         else:
             # call process function and pass in json data
             book = Process_Json(json_response)
-
             # redirect to add book page
             return redirect(url_for('add_book'))
 
@@ -299,15 +258,26 @@ def add_book():
     # check if search button is pressed
     if form.validate_on_submit():
        
-        # try to add book to database
+        # set new book object that will be inserted into database
+        new_book = Book(user_id=current_user.get_id() , title=book.title, authors=book.authors, pages=book.pages, rating=book.rating)
+
+        # do a check to see if new book's title already exists in database
+        book_check = Book.query.filter_by(title=new_book.title).first()
+
+        # if book title exists
+        if book_check:
+            # flash message and redirect to account page
+            flash('Book Already Exists', 'danger')
+            return redirect(url_for('account'))
+        
         try:
-            new_book = Book(user_id=current_user.get_id() , title=book.title, authors=book.authors, pages=book.pages, rating=book.rating)
+            # try to add new book to database
             db.session.add(new_book)
             db.session.commit()
             flash('Book Added to Catalogue List', 'success')
             return redirect(url_for('account'))
-        
         except:
+            # flash message and redirect to account page
             flash('Database Error - Unable to Add Book to List', 'danger')
             return redirect(url_for('account'))
 
@@ -321,16 +291,15 @@ def delete_book(book_id):
     try:
         # set book equal to book to delete
         book = Book.query.get_or_404(book_id)
-
-        # run query to delete book
+        # run query to delete book and set flash message
         db.session.delete(book)
         db.session.commit()
         flash('Book Deleted', 'success')
-
     except:
+        # flash database error message 
         flash('Database Error - Unable to Delete Book', 'danger')
-    
     finally:
+        # redirect to account page
         return redirect(url_for('account'))
 
 
