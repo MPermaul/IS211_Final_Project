@@ -14,31 +14,25 @@ import os
 # create Flask app object
 app = Flask(__name__)
 
-
 # appliction config section
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flask_book.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 # create SQLAlchemy database object
 db = SQLAlchemy(app)
 
-
 # create flask bcrpyt object for password hashing and checks
 bcrypt = Bcrypt(app)
-
 
 # create flask login manager objects
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-
 # glboal book variable initialzed as None
 book = None
-
 
 class User(db.Model, UserMixin):
     """A class object representing a user table in a database."""
@@ -113,19 +107,13 @@ class AddForm(FlaskForm):
         if valid_book:
             raise ValidationError('Book Already Exists!')
 
-# book examples for home page
+# book example for home page
 books = [
     {
         'title': 'Flask Web Development',
         'author': 'Miguel Grinberg',
         'pages': 237,
         'rating': 'No Rating'
-    },
-    {
-        'title': 'Harry Potter and the Sorcerer\'s Stone',
-        'author': 'J. K. Rowling',
-        'pages': 336,
-        'rating': '4.5'
     }
 ]
 
