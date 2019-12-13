@@ -1,0 +1,26 @@
+<!-- Extend Layout Template-->
+{% extends "layout.html" %}
+
+<!-- Start of Block Content -->
+{% block content %}
+
+  <!-- Start of Book Search Results -->
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <h4><a class="mr-2" > {{ book.title}}</a></h4>
+      </div>
+      <p class="article-content">Author(s): {{ book.authors }} </p>
+      <p class="article-content">Page Count: {{ book.pages }} </p>
+      <p class="article-content">Avg Rating: {{ book.rating }} </p>
+    </div>
+  </article>
+
+  <!-- Button for Adding Book to Catalogue -->
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.submit(class="btn btn-outline-info") }}
+    </div>
+  </form>
+{% endblock content %}

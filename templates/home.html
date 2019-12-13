@@ -1,0 +1,19 @@
+<!-- Extend Layout Template-->
+{% extends "layout.html" %}
+
+<!-- Start of Block Content-->
+
+{% block content %}
+    {% for book in books %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <h4><a class="mr-2" >Example Entry: {{ book.title }}</a></h4>
+            </div>
+            <p class="article-content">Author(s): {{ book.author }} </p>
+            <p class="article-content">Page Count: {{ book.pages }} </p>
+            <p class="article-content">Avg Rating: {{ book.rating }} </p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

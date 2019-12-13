@@ -1,0 +1,25 @@
+<!-- Extend Layout Template-->
+{% extends "layout.html" %}
+
+<!-- Start of Block Content-->
+{% block content %}
+
+    <h4>{{ current_user.username }}'s Book List </h4><br>
+    {% for book in catalogue %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <h4><a class="mr-2" > {{ book.title }}</a></h4>
+            </div>
+            <p class="article-content">Author(s): {{ book.authors }} </p>
+            <p class="article-content">Page Count: {{ book.pages }} </p>
+            <p class="article-content">Avg Rating: {{ book.rating }} </p>
+            <div>
+              <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{{ url_for('delete_book', book_id=book.id) }}">Delete</a>
+            </div>
+          </div>
+        </article>
+        
+    {% endfor %}
+
+{% endblock content %}
