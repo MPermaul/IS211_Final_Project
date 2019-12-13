@@ -7,11 +7,11 @@ Requirements:
 
 This application Flask, Flask Bcrypt, Flask Login, Flask WTF Forms, and SQLAlchemy. If you need to install these, you can run the following command to have it installed:
 
-pip install flask
-pip install flask-bcrypt
-pip install falsk-login
-pip install flask-sqlalchemy
-pip install flask-wtf
+    pip install flask
+    pip install flask-bcrypt
+    pip install falsk-login
+    pip install flask-sqlalchemy
+    pip install flask-wtf
 
 Application Details:
 
@@ -29,5 +29,5 @@ Application Details:
 
 
 Demo Account Details:
-Username: DemoAccount
-Password: Password1
+    Username: DemoAccount
+    Password: Password1
