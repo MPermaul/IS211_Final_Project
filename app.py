@@ -15,7 +15,7 @@ import os
 app = Flask(__name__)
 
 # appliction config section
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flask_book.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -187,11 +187,14 @@ def login():
         
         # if username and hassed password match account in database
         if user and bcrypt.check_password_hash(user.password, form.password.data):
+            
+            # call login user function, pass in user, and flash message 
             login_user(user)
             next_page = request.args.get('next')
             flash('Login Successful', 'success')
             return redirect(next_page) if next_page else redirect(url_for('account'))
         else:
+            # flash error message
             flash('Login Unsuccessful. Check Username and Password', 'danger')
     
     return render_template('login.html', form=form)
